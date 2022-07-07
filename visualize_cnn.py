@@ -1,6 +1,7 @@
 import os
 import numpy as np
-import torchvision
+import torchvision.models as models
+import torchvision.transforms as transforms
 import argparse
 import cv2
 from utils.gradcam import GradCAM
@@ -24,18 +25,19 @@ args = parser.parse_args()
 
 def main():
     visualize_method = args.method
-    target_model = torchvision.models.resnet50(pretrained=True)
-    # target_model = torchvision.models.vgg16(pretrained=True)
+    target_model = models.resnet50(pretrained=True)
     target_layers = [target_model.layer4]
+
+    # target_model = models.vgg16(pretrained=True)
     # target_layers = [target_model.features[-1]]
 
     target_image = cv2.imread(args.img_path,1)[:, :, ::-1]
     target_image_name = args.img_path.split('/')[-1].split('.')[0] + '_' + f"{args.method}" + '_' + f"{args.target_category}"+'_result.jpg'
     target_image = np.array(target_image,dtype=np.uint8)
-    pre_transforms = torchvision.transforms.Compose(
+    pre_transforms = transforms.Compose(
         [
-            torchvision.transforms.ToTensor(),
-            torchvision.transforms.Normalize(mean = [0.485,0.456,0.406] ,std = [0.229,0.224,0.225])
+            transforms.ToTensor(),
+            transforms.Normalize(mean = [0.485,0.456,0.406] ,std = [0.229,0.224,0.225])
         ]
     )
     img = pre_transforms(target_image.copy()).unsqueeze(0)
